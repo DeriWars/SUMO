@@ -48,7 +48,7 @@ boolean findEnemy() {
         Serial.print("Detection error! Distance is ");
         Serial.print(distance);
         Serial.println(" cm.");
-      } else if(distance > 50){
+      } else if(distance > 50 && lastDetectionTime > 0){
         timeElapsed = (int)(lastDetectionTime - detectionTime);
       } else {
         if(detectionTime == -1){
@@ -72,9 +72,12 @@ boolean findEnemy() {
 }
 
 float detect() {
-  digitalWrite(TRIG, HIGH);
-  float distance = digitalRead(ECHO) * 17 / 100.0;
-  digitalWrite(TRIG, LOW);
+  igitalWrite(TRIG, HIGH);
+    delayMicroseconds(20);
+    digitalWrite(TRIG, LOW);
+
+    int timeToTarget = pulseIn(ECHO, HIGH);
+    float distance = (float)(timeToTarget * 17) / 1000.0;
     
   Serial.print("Object detected at ");
   Serial.print(distance);

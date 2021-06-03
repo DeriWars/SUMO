@@ -1,7 +1,7 @@
 /*Permet de mesurer la distance toutes les 5 secondes*/
 
-#define TRIG 5
-#define ECHO 25
+#define TRIG 3
+#define ECHO 4
 
 void setup() {
   Serial.begin(9600);
@@ -15,12 +15,16 @@ void loop() {
 
   while(true){
     digitalWrite(TRIG, HIGH);
-    distance = digitalRead(ECHO) * 17 / 100.0;
+    delayMicroseconds(20);
     digitalWrite(TRIG, LOW);
+
+    int timeToTarget = pulseIn(ECHO, HIGH);
+    Serial.println(timeToTarget);
+    float distance = (float)(timeToTarget * 17) / 1000.0;
     
-    Serial.print("Distance : ");
+    Serial.print("Object detected at ");
     Serial.print(distance);
-    Serial.println(" cm");
+    Serial.println(" cm.");
     delay(5000);
   }
 }
