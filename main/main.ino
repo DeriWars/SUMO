@@ -3,6 +3,8 @@
 #define TRIG 5
 #define ECHO 25
 
+const int MAX_DISTANCE = 77;
+
 void setup() {
   Serial.begin(9600);
   delay(1000);
@@ -31,6 +33,28 @@ void loop() {
   }
 }
 
+
+int checkWhiteLine(){
+  return false;
+}
+
+void engageEvasiveManeuver(int maneuver){
+  stopEngine();
+  
+  if(maneuver == -1){
+    startRightEngine(200);
+    startLeftEngine(255);
+  } else if(maneuver == 1){
+    startRightEngine(255);
+    startLeftEngine(200);
+  } else {
+    startRightEngine(255);
+    startLeftEngine(255);
+  }
+}
+
+
+
 boolean findEnemy() {
   float distance = detect();
   unsigned long detectionTime = -1;
@@ -41,14 +65,19 @@ boolean findEnemy() {
   startRotationLeft();
   
   while(true){
+    int maneuver = checkWhiteLine();
     distance = detect();
+    
+    if(!maneuver && distance <= MAX_DISTANCE){
+      engageEvasiveManeuver(maneuver);
+    }
 
     if(timeElapsed == -1){
       if(distance <= 0){
         Serial.print("Detection error! Distance is ");
         Serial.print(distance);
         Serial.println(" cm.");
-      } else if(distance > 50 && lastDetectionTime > 0){
+      } else if(distance > MAX_DISTANCE && lastDetectionTime > 0){
         timeElapsed = (int)(lastDetectionTime - detectionTime);
       } else {
         if(detectionTime == -1){
@@ -73,11 +102,11 @@ boolean findEnemy() {
 
 float detect() {
   igitalWrite(TRIG, HIGH);
-    delayMicroseconds(20);
-    digitalWrite(TRIG, LOW);
+  delayMicroseconds(20);
+  digitalWrite(TRIG, LOW);
 
-    int timeToTarget = pulseIn(ECHO, HIGH);
-    float distance = (float)(timeToTarget * 17) / 1000.0;
+  int timeToTarget = pulseIn(ECHO, HIGH);
+  float distance = (float)(timeToTarget * 17) / 1000.0;
     
   Serial.print("Object detected at ");
   Serial.print(distance);
@@ -96,25 +125,38 @@ void attack(){
   
 }
 
-void forward(){
+
+
+void forward(int speed){
   
 }
 
-void backward(){
+void backward(int speed){
   
 }
 
-void startRotationLeft(){
+void startRotationLeft(int speed){
+  startLeftEngine(speed);
+  startRightEngine(-speed);
+}
+
+void startRotationRight(int speed){
+  startRightEngine(speed);
+  startLeftEngine(-speed);
+}
+
+void startRightEngine(int speed){
   
 }
 
-void startRotationRight(){
+void startLeftEngine(int speed){
   
 }
 
 void stopEngine(){
   
 }
+
 
 
 void ledsOff(){
