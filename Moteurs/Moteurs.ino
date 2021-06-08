@@ -1,9 +1,9 @@
-const int MOTEUR_G_PWM     = 5;  // Assigne la valeur du pin assigner au PWM des moteurs gauches
-const int MOTEUR_G_DIR_1   = 10;  // Assigne la valeur du pin assigner à la direction 1 des moteurs gauches
-const int MOTEUR_G_DIR_2   = 15;  // Assigne la valeur du pin assigner à la direction 2 des moteurs gauches
-const int MOTEUR_D_PWM     = 6;  // Assigne la valeur du pin assigner au PWM des moteurs droits
-const int MOTEUR_D_DIR_1   = A3;  // Assigne la valeur du pin assigner à la direction 1 des moteurs droits
-const int MOTEUR_D_DIR_2   = A2; // Assigne la valeur du pin assigner à la direction 2 des moteurs droits
+const int MOTEUR_G_PWM = 5;  // Assigne la valeur du pin assigner au PWM des moteurs gauches
+const int MOTEUR_G_DIR_1 = 10; // Assigne la valeur du pin assigner à la direction 1 des moteurs gauches
+const int MOTEUR_G_DIR_2 = 15; // Assigne la valeur du pin assigner à la direction 2 des moteurs gauches
+const int MOTEUR_D_PWM = 6;  // Assigne la valeur du pin assigner au PWM des moteurs droits
+const int MOTEUR_D_DIR_1 = A3; // Assigne la valeur du pin assigner à la direction 1 des moteurs droits
+const int MOTEUR_D_DIR_2 = A2; // Assigne la valeur du pin assigner à la direction 2 des moteurs droits
 
 void setup() {
   Serial.begin(9600); // Débute la communication avec la carte à une vitesse de 9600
