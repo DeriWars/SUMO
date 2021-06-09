@@ -10,7 +10,8 @@ void setup() {
 
 void loop() {
   int inputValue = analogRead(ANALOG_INPUT);
-  float voltage = inputValue * 0.0029;
+  Serial.println(inputValue);
+  float voltage = inputValue * 3.3 / (float)16383;
 
   Serial.print("Voltage : ");
   Serial.print(voltage);
