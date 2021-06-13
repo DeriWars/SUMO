@@ -35,6 +35,10 @@ void setup() {
   pinMode(RED_LED, OUTPUT);
   pinMode(GREEN_LED, OUTPUT);
   pinMode(BLUE_LED, OUTPUT);
+
+  interrupts();
+  attachInterrupt(TCRT_AVANT, forwardLine, RISING);
+  attachInterrupt(TCRT_AVANT, backwardLine, RISING);
 }
 
 void loop() {
@@ -70,6 +74,14 @@ int checkWhiteLine(){
   }
   
   return 0;
+}
+
+void forwardLine(){
+  engageEvasiveManeuver(-1);
+}
+
+void backwardLine(){
+  engageEvasiveManeuver(1);
 }
 
 void engageEvasiveManeuver(int maneuver){
