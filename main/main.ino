@@ -32,18 +32,12 @@ void setup() {
   pinMode(MOTEUR_D_DIR_1, OUTPUT); // Idem avec MOTEUR_D_DIR_1
   pinMode(MOTEUR_D_DIR_2, OUTPUT); // Idem avec MOTEUR_D_DIR_2
 
-  pinMode(RED_LED, OUTPUT);
-  pinMode(GREEN_LED, OUTPUT);
-  pinMode(BLUE_LED, OUTPUT);
-
   interrupts();
   attachInterrupt(TCRT_AVANT, forwardLine, RISING);
   attachInterrupt(TCRT_AVANT, backwardLine, RISING);
 }
 
 void loop() {
-  ledsOff();
-  
   while(true){
     int whiteLines = checkWhiteLine();
 
@@ -57,7 +51,6 @@ void loop() {
     if(enemyDetected){
       attack();
     } else {
-      ledsOn(0, 1, 1);
       delay(500);
     }
   }
@@ -86,7 +79,6 @@ void backwardLine(){
 
 void engageEvasiveManeuver(int maneuver){
   stopEngine();
-  ledsOn(1, 0, 1);
   
   if(maneuver == 1){ // Back sensor has detected white line
     rightEngine(200, 1, 0);
@@ -109,7 +101,6 @@ boolean findEnemy() {
   unsigned long lastDetectionTime = -1;
   int timeElapsed = -1;
 
-  ledsOn(0, 0, 1);
   startRotationLeft(150);
   
   while(true){
@@ -136,7 +127,6 @@ boolean findEnemy() {
       }
     } else{
       stopEngine();
-      ledsOn(1, 0, 0);
       centerPosition(timeElapsed);
       return true;
     }
@@ -170,9 +160,7 @@ void centerPosition(int timeElapsed){
 
 
 
-void attack(){
-  ledsOn(1, 0, 0);
-  
+void attack(){  
   int startTime = millis();
   int startDistance = detect();
   int distance = startDistance;
@@ -182,7 +170,6 @@ void attack(){
 
     if(distance > MAX_DISTANCE){ // Enemy has been lost
       forward(255);
-      ledsOn(1, 1, 0);
       
       while(detect() && !checkWhiteLine()){
         delay(100);
@@ -255,20 +242,4 @@ void leftEngine(int speed, int direction, int opposite){
 void stopEngine(){
   rightEngine(0, 0, 0);
   leftEngine(0, 0, 0);
-}
-
-
-
-void ledsOn(int r, int g, int b){
-  r = (r == 1) ? r = HIGH : r = LOW;
-  g = (g == 1) ? g = HIGH : g = LOW;
-  b = (b == 1) ? b = HIGH : b = LOW;
-  
-  digitalWrite(RED_LED, r);
-  digitalWrite(GREEN_LED, g);
-  digitalWrite(BLUE_LED, b);
-}
-
-void ledsOff(){
-  ledsOn(0, 0, 0);
 }
