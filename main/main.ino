@@ -45,9 +45,10 @@ void setup() {
   pinMode(MOTEUR_D_DIR_1, OUTPUT); // Idem avec MOTEUR_D_DIR_1
   pinMode(MOTEUR_D_DIR_2, OUTPUT); // Idem avec MOTEUR_D_DIR_2
 
-  interrupts();
+  // Interruption doesn't detect any change
+  /*interrupts();
   attachInterrupt(TCRT_AVANT, forwardLine, RISING);
-  attachInterrupt(TCRT_ARRIERE, backwardLine, RISING);
+  attachInterrupt(TCRT_ARRIERE, backwardLine, RISING);*/
 
   Serial.println("ETALP - Started!");
 
