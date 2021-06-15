@@ -1,12 +1,13 @@
-const int MOTEUR_G_PWM = 5;  // Assigne la valeur du pin assigner au PWM des moteurs gauches
+const int MOTEUR_G_PWM = 13;  // Assigne la valeur du pin assigner au PWM des moteurs gauches
 const int MOTEUR_G_DIR_1 = 10; // Assigne la valeur du pin assigner à la direction 1 des moteurs gauches
 const int MOTEUR_G_DIR_2 = 15; // Assigne la valeur du pin assigner à la direction 2 des moteurs gauches
-const int MOTEUR_D_PWM = 6;  // Assigne la valeur du pin assigner au PWM des moteurs droits
-const int MOTEUR_D_DIR_1 = A3; // Assigne la valeur du pin assigner à la direction 1 des moteurs droits
-const int MOTEUR_D_DIR_2 = A2; // Assigne la valeur du pin assigner à la direction 2 des moteurs droits
+const int MOTEUR_D_PWM = 12;  // Assigne la valeur du pin assigner au PWM des moteurs droits
+const int MOTEUR_D_DIR_1 = 22; // Assigne la valeur du pin assigner à la direction 1 des moteurs droits
+const int MOTEUR_D_DIR_2 = 21; // Assigne la valeur du pin assigner à la direction 2 des moteurs droits
 
 void setup() {
   Serial.begin(9600); // Débute la communication avec la carte à une vitesse de 9600
+  delay(1000);
   pinMode(MOTEUR_G_PWM, OUTPUT); // Initalise le pin MOTEUR_G_PWM comme sortie
   pinMode(MOTEUR_G_DIR_1, OUTPUT); // Idem avec MOTEUR_G_DIR_1
   pinMode(MOTEUR_G_DIR_2, OUTPUT); // Idem avec MOTEUR_G_DIR_2
@@ -17,17 +18,17 @@ void setup() {
 
 void loop() {
   String motor = readConsole("Moteur (0==droit, 1==gauche) : "); // Lis la console pour savoir le moteur a activé
-  String direction = readConsole("Direction (0==avant, 1==arrière) : "); // Lis la console pour avoir la direction du moteur
+  String dir = readConsole("Direction (0==avant, 1==arrière) : "); // Lis la console pour avoir la direction du moteur
   String power = readConsole("Puissance des moteurs (0 à 4) : "); // Lis la console pour savoir la puissance du moteur
 
   int realDirection; // Direction en int et non en String
   int oppositeDirection; // Direction opposée à realDirection
   int realPower; // Puissance en int et non en String
 
-  if(direction.equals("0\n")){ // On extrait la valeur int de la String lu
+  if(dir.equals("0\n")){ // On extrait la valeur int de la String lu
       realDirection = 1; // On assigne cette valeur à realDirection
       oppositeDirection = 0; // On assigne son "opposée" à oppositeDirection
-  }else if(direction.equals("1\n")){ // Idem
+  }else if(dir.equals("1\n")){ // Idem
       realDirection = 0; // Idem
       oppositeDirection = 1; // Idem
   }else{ // Si l'utilisateur ne rentre pas une direction valide

@@ -1,7 +1,7 @@
 /*Permet de mesurer la distance toutes les 5 secondes*/
 
-#define TRIG 3
-#define ECHO 4
+const int TRIG = 13;
+const int ECHO = 11;
 
 void setup() {
   Serial.begin(9600);
@@ -25,6 +25,6 @@ void loop() {
     Serial.print("Object detected at ");
     Serial.print(distance);
     Serial.println(" cm.");
-    delay(5000);
+    delay(1000);
   }
 }

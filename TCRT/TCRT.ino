@@ -1,5 +1,5 @@
-const int TCRT_AVANT = A0; // Assigne la valeur du pin assigner au détecteur avant
-const int TCRT_ARRIERE = A1; // Assigne la valeur du pin assigne au détecteur arrière
+const int TCRT_AVANT = A1; // Assigne la valeur du pin assigner au détecteur avant
+const int TCRT_ARRIERE = A0; // Assigne la valeur du pin assigne au détecteur arrière
 
 void setup() {
   Serial.begin(9600); // Débute la communication avec la carte à une vitesse de 9600
@@ -12,6 +12,14 @@ void setup() {
 }
 
 void loop() {
+  Serial.println(digitalRead(TCRT_AVANT));
+  Serial.println(digitalRead(TCRT_ARRIERE));
+  if(digitalRead(TCRT_AVANT) || digitalRead(TCRT_ARRIERE)){
+    Serial.println("Blanc");
+    delay(2000);
+    return;
+  }
+  
   Serial.println("Lieu : Piste (zone noire)"); // Affiche un message pour dire que le robot est dans la zone noire
   delay(2000); // Attends 2 secondes avant de refaire les mêmes instructions
 }
