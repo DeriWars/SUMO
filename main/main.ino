@@ -17,12 +17,12 @@ const int MIN_DISTANCE = 2; // The minimum distance with the enemy to engage eva
 
 const int PUSH = 8;
 
-const int FULL_SPEED = 255;
-const int MAX_SPEED = 125;
-const int SPEED = 80;
-const int MIN_SPEED = 50;
+const int FULL_SPEED = 100;
+const int MAX_SPEED = 50;
+const int SPEED = 40;
+const int MIN_SPEED = 30;
 
-const int WHITE_LINE_MIN_VALUE = 800;
+const int WHITE_LINE_MIN_VALUE = 700;
 
 void setup() {
   Serial.begin(9600);
@@ -56,6 +56,7 @@ void setup() {
     delay(1);
   }
 
+  delay(5000);
   Serial.println("ETALP - LAUNCHING...");
 }
 
@@ -80,6 +81,8 @@ void loop() {
 
 
 int checkWhiteLine(){
+  Serial.println(analogRead(TCRT_AVANT));
+  Serial.println(analogRead(TCRT_ARRIERE));
   if(analogRead(TCRT_AVANT) >= WHITE_LINE_MIN_VALUE && analogRead(TCRT_ARRIERE) >= WHITE_LINE_MIN_VALUE){
     return 2;
   }else if(analogRead(TCRT_AVANT) >= WHITE_LINE_MIN_VALUE){

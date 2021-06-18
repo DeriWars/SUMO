@@ -1,13 +1,3 @@
-/*
- * ROBY LE ROBOT (TM) - VERSION 1.0 (2021.06.16)
- * 
- * Laurenço MONTEIRO - Designer
- * Quentin CHALESSIN - Designer
- * Benjamin LAMBERT - Programmeur
- * 
- * ROBY LE ROBOT est une machine de guerre. Utiliser la avec précaution. 
- */
-
 const int TRIG = 13; // Assigne la valeur du pin TRIGGER
 const int ECHO = 11; // Assigne la valeur du pin ECHO
 
@@ -21,17 +11,17 @@ const int MOTEUR_D_PWM = 10;  // Assigne la valeur du pin assigner au PWM des mo
 const int MOTEUR_D_DIR_1 = A2; // Assigne la valeur du pin assigner à la direction 1 des moteurs droits
 const int MOTEUR_D_DIR_2 = A3; // Assigne la valeur du pin assigner à la direction 2 des moteurs droits
 
-const int MAX_DISTANCE = 100; // The maximum distance that the enemy can be
+const int MAX_DISTANCE = 77; // The maximum distance that the enemy can be
 const int ATTACK_DISTANCE = 88; // The distance where the sumobot start attacking
 const int MIN_DISTANCE = 2; // The minimum distance with the enemy to engage evasive manoeuvers
 
 const int PUSH = 8;
 
-const int SPEED = 50;
-const int MIN_SPEED = 30;
+const int SPEED = 120;
+const int MIN_SPEED = 20;
 
 void setup() {
-  Serial.println("ROBY - STARTING...");
+  Serial.println("ETALP - STARTING...");
   Serial.begin(9600);
   delay(1000);
   
@@ -50,33 +40,30 @@ void setup() {
   pinMode(MOTEUR_D_DIR_1, OUTPUT); // Idem avec MOTEUR_D_DIR_1
   pinMode(MOTEUR_D_DIR_2, OUTPUT); // Idem avec MOTEUR_D_DIR_2
 
-  Serial.println("ROBY - Started!");
+  Serial.println("ETALP - Started!");
 
   while(digitalRead(PUSH)){
     delay(1);
   }
 
-  Serial.println("ROBY - WAITING FOR LAUNCH...");
   delay(5000);
-  Serial.println("ROBY - LAUNCHING!");
+  Serial.println("ETALP - LAUNCHING...");
 }
 
 void loop() {
   int back = digitalRead(TCRT_ARRIERE);
   int forward = digitalRead(TCRT_AVANT);
 
-  if(back){
-    Serial.println("ROBY - White line backward!");
-    rightEngine(SPEED, 1, 0);
-    leftEngine(SPEED, 1, 0);
-    delay(500);
-    stopEngine();
-    return;
-  } else if(forward){
-    Serial.println("ROBY - White line forward!...");
+  /*if(back){
+    Serial.println("ETALP - White line backward!");
     rightEngine(SPEED, 0, 1);
     leftEngine(SPEED, 0, 1);
-    delay(500);
+    stopEngine();
+    return;
+  } else */if(forward || back){
+    Serial.println("ETALP - White line forward!...");
+    rightEngine(SPEED, 1, 0);
+    leftEngine(SPEED, 1, 0);
     stopEngine();
     return;
   }
@@ -84,14 +71,16 @@ void loop() {
   float distance = detect();
 
   if(distance <= MAX_DISTANCE && distance > 0){
-    rightEngine(SPEED, 1, 0);
-    leftEngine(SPEED, 1, 0);
-    Serial.println("ROBY - ATTACKING...");
+    rightEngine(SPEED, 0, 1);
+    leftEngine(SPEED, 0, 1);
+    Serial.println("ETALP - ATTACKING...");
   }else{
-    rightEngine(MIN_SPEED, 0, 1);
-    leftEngine(MIN_SPEED, 1, 0);
-    Serial.println("ROBY - SEARCHING...");
+    rightEngine(MIN_SPEED, 1, 0);
+    leftEngine(MIN_SPEED, 0, 1);
+    Serial.println("ETALP - SEARCHING...");
   }
+
+  delay(500);
 }
 
 
@@ -102,6 +91,10 @@ float detect() {
 
   int timeToTarget = pulseIn(ECHO, HIGH);
   float distance = (float)(timeToTarget * 17) / 1000.0;
+    
+  Serial.print("Object detected at ");
+  Serial.print(distance);
+  Serial.println(" cm.");
 
   if(timeToTarget >= 2000){
     distance = -1;
