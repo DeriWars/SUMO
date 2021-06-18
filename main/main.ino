@@ -1,3 +1,14 @@
+/*
+ * ROBY LE ROBOT (TM) - VERSION 1.1 (2021.06.18)
+ * 
+ * Laurenço MONTEIRO - Designer
+ * Quentin CHALESSIN - Designer
+ * Benjamin LAMBERT - Programmeur
+ * 
+ * ROBY LE ROBOT est une machine de guerre. Utiliser la avec précaution.
+ * Programme compatible avec la version 5.0 du SUMOBOT ESIEESPACE
+ */
+
 const int TRIG = 13; // Assigne la valeur du pin TRIGGER
 const int ECHO = 11; // Assigne la valeur du pin ECHO
 
@@ -11,32 +22,25 @@ const int MOTEUR_D_PWM = 10;  // Assigne la valeur du pin assigner au PWM des mo
 const int MOTEUR_D_DIR_1 = A2; // Assigne la valeur du pin assigner à la direction 1 des moteurs droits
 const int MOTEUR_D_DIR_2 = A3; // Assigne la valeur du pin assigner à la direction 2 des moteurs droits
 
-const int MAX_DISTANCE = 77; // The maximum distance that the enemy can be
-const int ATTACK_DISTANCE = 20; // The distance where the sumobot start attacking
-const int MIN_DISTANCE = 2; // The minimum distance with the enemy to engage evasive manoeuvers
+const int PUSH = 8; // Assigne la valeur du pin assigner au bouton poussoir
 
-const int PUSH = 8;
+const int MAX_DISTANCE = 100; // La distance maximal avec l'ennemi
 
-const int FULL_SPEED = 100;
-const int MAX_SPEED = 50;
-const int SPEED = 40;
-const int MIN_SPEED = 30;
-
-const int WHITE_LINE_MIN_VALUE = 700;
+const int SPEED = 60; // La vitesse de charge / d'esquive du robot
+const int ROTATION_SPEED = 30; // La vitesse de rotation du robot
 
 void setup() {
-  Serial.begin(9600);
+  Serial.println("ROBY - STARTING...");
+  Serial.begin(9600); // Initialise la communication avec le robot
   delay(1000);
-
-  Serial.println("ETALP - STARTING...");
   
-  pinMode(TRIG, OUTPUT);
-  pinMode(ECHO, INPUT);
+  pinMode(TRIG, OUTPUT); // Initialise le pin TRIG comme sortie (capteur utlra-son)
+  pinMode(ECHO, INPUT); // Initialise le pin ECHO comme entrée (capteur utlra-son)
 
-  pinMode(TCRT_AVANT, INPUT); // Initialise le pin TCRT_AVANT comme entrée
-  pinMode(TCRT_ARRIERE, INPUT); // Initialise le pin TCRT_ARRIERE comme entrée
+  pinMode(TCRT_AVANT, INPUT); // Initialise le pin TCRT_AVANT comme entrée (capteur ligne blanche)
+  pinMode(TCRT_ARRIERE, INPUT); // Initialise le pin TCRT_ARRIERE comme entrée (capteur ligne blanche)
 
-  pinMode(PUSH, INPUT_PULLUP);
+  pinMode(PUSH, INPUT_PULLUP); // Initialise le pin PUSH comme entrée PULLUP (bouton)
 
   pinMode(MOTEUR_G_PWM, OUTPUT); // Initalise le pin MOTEUR_G_PWM comme sortie
   pinMode(MOTEUR_G_DIR_1, OUTPUT); // Idem avec MOTEUR_G_DIR_1
@@ -45,136 +49,71 @@ void setup() {
   pinMode(MOTEUR_D_DIR_1, OUTPUT); // Idem avec MOTEUR_D_DIR_1
   pinMode(MOTEUR_D_DIR_2, OUTPUT); // Idem avec MOTEUR_D_DIR_2
 
-  // Interruption doesn't detect any change
-  /*interrupts();
-  attachInterrupt(TCRT_AVANT, forwardLine, RISING);
-  attachInterrupt(TCRT_ARRIERE, backwardLine, RISING);*/
+  Serial.println("ROBY - Started!");
 
-  Serial.println("ETALP - Started!");
-
+  // Attend que l'on appuie sur le bouton poussoir pour commencer le combat
   while(digitalRead(PUSH)){
     delay(1);
   }
 
-  delay(5000);
-  Serial.println("ETALP - LAUNCHING...");
+  Serial.println("ROBY - WAITING FOR LAUNCH...");
+  delay(5000); // Attends les 5 secondes réglementaires après appuie du bouton
+  Serial.println("ROBY - LAUNCHING!");
 }
 
 void loop() {
-  while(true){
-    int whiteLines = checkWhiteLine();
+  int back = digitalRead(TCRT_ARRIERE); // Récupère la valeur du capteur de ligne arrière
+  int forward = digitalRead(TCRT_AVANT); // Récupère la valeur du capteur de ligne avant
 
-    if(whiteLines != 0){
-      engageEvasiveManeuver(whiteLines);
-      continue;
-    }
-    
-    bool enemyDetected = findEnemy();
-
-    if(enemyDetected){
-      attack();
-    } else {
-      delay(500);
-    }
-  }
-}
-
-
-int checkWhiteLine(){
-  Serial.println(analogRead(TCRT_AVANT));
-  Serial.println(analogRead(TCRT_ARRIERE));
-  if(analogRead(TCRT_AVANT) >= WHITE_LINE_MIN_VALUE && analogRead(TCRT_ARRIERE) >= WHITE_LINE_MIN_VALUE){
-    return 2;
-  }else if(analogRead(TCRT_AVANT) >= WHITE_LINE_MIN_VALUE){
-    return 1;
-  }else if(analogRead(TCRT_ARRIERE) >= WHITE_LINE_MIN_VALUE){
-    return -1;
-  }
-  
-  return 0;
-}
-
-void forwardLine(){
-  engageEvasiveManeuver(1);
-}
-
-void backwardLine(){
-  engageEvasiveManeuver(-1);
-}
-
-void engageEvasiveManeuver(int maneuver){
-  stopEngine();
-  
-  if(maneuver == -1){ // Back sensor has detected white line
-    rightEngine(FULL_SPEED, 1, 0);
-    leftEngine(FULL_SPEED, 1, 0);
-    Serial.println("Back sensors have detected somethings!");
-    delay(1000);
-    stopEngine();
-  } else if(maneuver == 1){ // Forward sensors have detected white line
-    rightEngine(FULL_SPEED, 0, 1);
-    leftEngine(FULL_SPEED, 0, 1);
-    Serial.println("Forward sensors have detected somethings!");
-    delay(1000);
-    stopEngine();
-  } else if(maneuver == 2) {
-    startRotationRight(SPEED);
-    Serial.println("BOTH sensors have detected somethings!");
+  /*
+   * Vérifie si un des deux capteurs de ligne à detecter une ligne (1)
+   * Si c'est le cas, il repart dans la direction opposée à la ligne
+   * pendant une demi seconde, puis s'arrête et cherche l'ennemi
+   */
+  if(back){
+    Serial.println("ROBY - White line backward!");
+    rightEngine(SPEED, 1, 0);
+    leftEngine(SPEED, 1, 0);
     delay(500);
     stopEngine();
+    return;
+  } else if(forward){
+    Serial.println("ROBY - White line forward!...");
+    rightEngine(SPEED, 0, 1);
+    leftEngine(SPEED, 0, 1);
+    delay(500);
+    stopEngine();
+    return;
+  }
+
+  float distance = detect(); // Récupère la distance le séparant de l'objet le plus proche
+
+  /*
+   * Vérifie si la distance est une valeur cohérente (entre 0 et MAX_DISTANCE)
+   * Si la valeur est cohérente, alors il considère que l'objet détecté est un ennemi,
+   * puis engage une charge contre l'ennemi.
+   * Si l'objet n'est pas un ennemi (valeur de la distance incohérente), alors il tourne sur
+   * lui-même afin de rechercher un ennemi potentiel.
+   * Si l'ennemi est perdu de vue pendant la charge, le robot se met à le chercher en tournant
+   * sur lui-même.
+   */
+  if(distance <= MAX_DISTANCE && distance > 0){
+    rightEngine(SPEED, 1, 0);
+    leftEngine(SPEED, 1, 0);
+    Serial.println("ROBY - ATTACKING...");
+  }else{
+    rightEngine(ROTATION_SPEED, 0, 1);
+    leftEngine(ROTATION_SPEED, 1, 0);
+    Serial.println("ROBY - SEARCHING...");
   }
 }
 
 
-
-boolean findEnemy() {
-  float distance = detect();
-  unsigned long detectionTime = -1;
-  unsigned long lastDetectionTime = -1;
-  int timeElapsed = -1;
-
-  startRotationLeft(MIN_SPEED);
-  
-  while(true){
-    int maneuver = checkWhiteLine();
-    distance = detect();
-    
-    if(!maneuver && distance > MIN_DISTANCE){
-      engageEvasiveManeuver(maneuver);
-    } else if(maneuver != 0){
-      engageEvasiveManeuver(maneuver);
-      startRotationLeft(MIN_SPEED);
-      detectionTime = -1;
-      lastDetectionTime = -1;
-      timeElapsed = -1;
-    }
-
-    if(timeElapsed == -1){
-      if((distance > MAX_DISTANCE || distance <= 0) && lastDetectionTime > 0){
-        timeElapsed = (int)(lastDetectionTime - detectionTime);
-        timeElapsed = (timeElapsed < 0) ? -timeElapsed : timeElapsed;
-      } else if(distance > 0) {
-        if(detectionTime == -1){
-          detectionTime = millis();
-          Serial.println("Enemy detected! (Start)");
-        }
-      } else{
-        timeElapsed = (int)(lastDetectionTime - detectionTime);
-        Serial.print("Enemy detected! Centering...");
-      }
-    } else{
-      stopEngine();
-      delay(1000);
-      centerPosition(timeElapsed);
-      return true;
-    }
-
-    delay(50);
-  }
-
-  return false;
-}
-
+/*
+ * Permet la détection d'un objet et de calculer la distance
+ * entre le robot et l'objet détecté.
+ * @return La distance entre le robot et l'objet
+ */
 float detect() {
   digitalWrite(TRIG, HIGH);
   delayMicroseconds(20);
@@ -182,81 +121,43 @@ float detect() {
 
   int timeToTarget = pulseIn(ECHO, HIGH);
   float distance = (float)(timeToTarget * 17) / 1000.0;
-    
-  Serial.print("Object detected at ");
-  Serial.print(distance);
-  Serial.println(" cm.");
+
+  /*
+   * Si le temps écoulé avant réception du signal est supérieur 
+   * à 2000, on considère que la valeur de distance est incohérente
+   * Ce constat est venu après des expérimentations où la distance dépassée
+   * ce seuil de 2000 µs était incohérente par rapport à la distance réelle
+   * observée
+   */
+  if(timeToTarget >= 2000){
+    distance = -1;
+  }
 
   return distance;
 }
 
-void centerPosition(int timeElapsed){
-  Serial.println("ETALP - Centering...");
-  startRotationRight(MIN_SPEED);
-  Serial.println(timeElapsed);
-  delay((int)(timeElapsed / 2));
-  stopEngine();
-  Serial.println("ETALP - Centered!");
-}
 
-
-
-void attack(){
-  Serial.println("ETALP - Attacking ennemy...");
-  forward(SPEED);
-
-  float distance = detect();
-
-  while(distance > 0 && distance <= MAX_DISTANCE){
-    delay(200);
-    distance = detect();
-
-    int maneuver = checkWhiteLine();
-
-    if(maneuver != 0){
-      engageEvasiveManeuver(maneuver);
-    }
-  }
-
-  backward(FULL_SPEED);
-  delay(200);
-  stopEngine();
-}
-
-
-
-void forward(int speed){
-  rightEngine(speed, 1, 0);
-  leftEngine(speed, 1, 0);
-}
-
-void backward(int speed){
-  rightEngine(speed, 0, 1);
-  leftEngine(speed, 0, 1);
-}
-
-void startRotationLeft(int speed){
-  leftEngine(speed, 0, 1);
-  rightEngine(speed, 1, 0);
-}
-
-void startRotationRight(int speed){
-  rightEngine(speed, 0, 1);
-  leftEngine(speed, 1, 0);
-}
-
+/*
+ * Permet le contrôle total des moteurs droits uniquement
+ */
 void rightEngine(int speed, int direction, int opposite){
   digitalWrite(MOTEUR_D_DIR_1, direction); // On met la direction avant des moteurs droits à direction
   digitalWrite(MOTEUR_D_DIR_2, opposite); // On met la direction arrière des moteurs droits à opposite (l'opposée de la direction avant)
   analogWrite(MOTEUR_D_PWM, speed); // On applique la vitesse choisis par l'utilisateur (en quart)
 }
 
+/*
+ * Permet le contrôle total des moteurs gauches uniquement
+ */
 void leftEngine(int speed, int direction, int opposite){
   digitalWrite(MOTEUR_G_DIR_1, direction); // On met la direction avant des moteurs droits à direction
   digitalWrite(MOTEUR_G_DIR_2, opposite); // On met la direction arrière des moteurs droits à opposite (l'opposée de la direction avant)
   analogWrite(MOTEUR_G_PWM, speed); // On applique la vitesse choisis par l'utilisateur (en quart)
 }
 
+/*
+ * Permet de stopper les moteurs sans freinage supplémentaire
+ */
 void stopEngine(){
   rightEngine(0, 0, 0);
   leftEngine(0, 0, 0);
