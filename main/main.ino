@@ -1,8 +1,7 @@
 /*
- * ROBY LE ROBOT (TM) - VERSION 1.1 (2021.06.18)
+ * ROBY LE ROBOT (TM) - VERSION 1.2 (2022.01.25)
  * 
  * Laurenço MONTEIRO - Designer
- * Quentin CHALESSIN - Designer
  * Benjamin LAMBERT - Programmeur
  * 
  * ROBY LE ROBOT est une machine de guerre. Utiliser la avec précaution.
@@ -159,6 +158,6 @@ void leftEngine(int speed, int direction, int opposite){
  * Permet de stopper les moteurs sans freinage supplémentaire
  */
 void stopEngine(){
-  rightEngine(0, 0, 0);
-  leftEngine(0, 0, 0);
+  rightEngine(255, 0, 0); // SPEED = 255 pour bloquer les roues
+  leftEngine(255, 0, 0); // Idem
 }
