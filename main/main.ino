@@ -23,10 +23,13 @@ const int MOTEUR_D_DIR_2 = A3; // Assigne la valeur du pin assigner à la direct
 
 const int PUSH = 8; // Assigne la valeur du pin assigner au bouton poussoir
 
-const int MAX_DISTANCE = 100; // La distance maximal avec l'ennemi
+const int MAX_DISTANCE = 150; // La distance maximal avec l'ennemi
 
-const int SPEED = 60; // La vitesse de charge / d'esquive du robot
-const int ROTATION_SPEED = 30; // La vitesse de rotation du robot
+const int SPEED = 90; // La vitesse de charge / d'esquive du robot
+const int ROTATION_SPEED = 35; // La vitesse de rotation du robot
+
+int blackValueForward = 900; // La valeur du TCRT avant sur du noir
+int blackValueBackward = 900; // La valeur du TCRT arrière sur du noir
 
 void setup() {
   Serial.println("ROBY - STARTING...");
@@ -57,12 +60,31 @@ void setup() {
 
   Serial.println("ROBY - WAITING FOR LAUNCH...");
   delay(5000); // Attends les 5 secondes réglementaires après appuie du bouton
+
+  blackValueForward = analogRead(TCRT_AVANT); // Lit la valeur du TCRT avant sur du noir
+  blackValueBackward = analogRead(TCRT_ARRIERE); // Lit la valeur du TCRT arrière sur du noir
+
+  Serial.print("f=");
+  Serial.print(blackValueForward);
+  Serial.print(", b=");
+  Serial.println(blackValueBackward);
   Serial.println("ROBY - LAUNCHING!");
 }
 
 void loop() {
-  int back = digitalRead(TCRT_ARRIERE); // Récupère la valeur du capteur de ligne arrière
-  int forward = digitalRead(TCRT_AVANT); // Récupère la valeur du capteur de ligne avant
+  /*rightEngine(SPEED, 1, 0);
+  leftEngine(SPEED, 1, 0);
+  return;*/
+  bool back = analogRead(TCRT_ARRIERE) >= blackValueBackward * 1.3f; // Récupère la valeur du capteur de ligne arrière
+  bool forward = analogRead(TCRT_AVANT) >= blackValueForward * 1.3f; // Récupère la valeur du capteur de ligne avant
+
+  Serial.print("f=");
+  Serial.println(analogRead(TCRT_AVANT));
+  Serial.print("b=");
+  Serial.println(analogRead(TCRT_ARRIERE));
+
+  //int back = digitalRead(TCRT_ARRIERE);
+  //int forward = digitalRead(TCRT_AVANT);
 
   /*
    * Vérifie si un des deux capteurs de ligne à detecter une ligne (1)
@@ -99,11 +121,11 @@ void loop() {
   if(distance <= MAX_DISTANCE && distance > 0){
     rightEngine(SPEED, 1, 0);
     leftEngine(SPEED, 1, 0);
-    Serial.println("ROBY - ATTACKING...");
+    //Serial.println("ROBY - ATTACKING...");
   }else{
     rightEngine(ROTATION_SPEED, 0, 1);
     leftEngine(ROTATION_SPEED, 1, 0);
-    Serial.println("ROBY - SEARCHING...");
+    //Serial.println("ROBY - SEARCHING...");
   }
 }
 
