@@ -28,9 +28,12 @@ const int MAX_DISTANCE = 100; // La distance maximal avec l'ennemi
 const int SPEED = 60; // La vitesse de charge / d'esquive du robot
 const int ROTATION_SPEED = 30; // La vitesse de rotation du robot
 
+const int LED_G = 10;
+const int LED_D = 11;
+
 void setup() {
-  Serial.println("ROBY - STARTING...");
   Serial.begin(9600); // Initialise la communication avec le robot
+  Serial.println("ROBY - STARTING...");
   delay(1000);
   
   pinMode(TRIG, OUTPUT); // Initialise le pin TRIG comme sortie (capteur utlra-son)
@@ -48,7 +51,12 @@ void setup() {
   pinMode(MOTEUR_D_DIR_1, OUTPUT); // Idem avec MOTEUR_D_DIR_1
   pinMode(MOTEUR_D_DIR_2, OUTPUT); // Idem avec MOTEUR_D_DIR_2
 
+  pinMode(LED_G, OUTPUT);
+  pinMode(LED_D, OUTPUT);
+
   Serial.println("ROBY - Started!");
+  digitalWrite(LED_G, HIGH);
+  digitalWrite(LED_D, HIGH);
 
   // Attend que l'on appuie sur le bouton poussoir pour commencer le combat
   while(digitalRead(PUSH)){
